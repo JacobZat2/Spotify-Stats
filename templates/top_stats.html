@@ -26,6 +26,10 @@
         h1, h2 {
             font-size: 1.5rem;
         }
+        .btn-outline-primary.active {
+            background-color: #007bff;
+            color: white;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -43,6 +47,12 @@
     </nav>
     <div class="container mt-4">
         <h1 class="text-center mb-4">Your Top Stats</h1>
+
+        <div class="text-center mb-4">
+            <a href="{{ url_for('top_stats', time_range='short_term') }}" class="btn btn-outline-primary {% if current_time_range == 'short_term' %}active{% endif %}">Last 4 Weeks</a>
+            <a href="{{ url_for('top_stats', time_range='medium_term') }}" class="btn btn-outline-primary {% if current_time_range == 'medium_term' %}active{% endif %}">Last 6 Months</a>
+            <a href="{{ url_for('top_stats', time_range='long_term') }}" class="btn btn-outline-primary {% if current_time_range == 'long_term' %}active{% endif %}">All Time</a>
+        </div>
 
         <h2 class="text-center mb-3">Top Artists</h2>
         <div class="row">

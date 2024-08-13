@@ -40,35 +40,39 @@ def callback():
     token_info = sp_oauth.get_access_token(code)
 
     session['token_info'] = token_info
-    return redirect(url_for('top_stats'))
+    return redirect(url_for('top_stats', time_range='medium_term'))
 
-@app.route('/top-stats')
-def top_stats():
+@app.route('/top-stats/<time_range>')
+def top_stats(time_range):
     token_info = session.get('token_info', None)
     if not token_info:
         return redirect(url_for('login'))
 
     sp = spotipy.Spotify(auth=token_info['access_token'])
 
-    # Get user's top artists 
-    artists_results = sp.current_user_top_artists(limit=12, time_range='medium_term')
+    # Validate time range input
+    if time_range not in ['short_term', 'medium_term', 'long_term']:
+        time_range = 'medium_term'
+
+    # Get user's top artists
+    artists_results = sp.current_user_top_artists(limit=12, time_range=time_range)
     top_artists = artists_results['items']
 
-    # Get user's top tracks 
-    tracks_results = sp.current_user_top_tracks(limit=12, time_range='medium_term')
+    # Get user's top tracks
+    tracks_results = sp.current_user_top_tracks(limit=12, time_range=time_range)
     top_tracks = tracks_results['items']
 
     # Calculate most-listened-to genres for the pie chart
     genres = []
     for artist in top_artists:
         genres.extend(artist['genres'])
-    genre_counts = Counter(genres).most_common(5)  
+    genre_counts = Counter(genres).most_common(5)  # Top 5 genres
 
     genre_labels = [genre[0] for genre in genre_counts]
     genre_values = [genre[1] for genre in genre_counts]
 
     # Get recommended artists based on top artists
-    seed_artists = [artist['id'] for artist in top_artists[:5]]  
+    seed_artists = [artist['id'] for artist in top_artists[:5]]  # Use up to 5 top artists as seeds
     recommended_artists_results = sp.recommendations(seed_artists=seed_artists, limit=6)
     recommended_artists = recommended_artists_results['tracks']
 
@@ -77,7 +81,9 @@ def top_stats():
                            tracks=top_tracks, 
                            genre_labels=genre_labels, 
                            genre_values=genre_values,
-                           recommended_artists=recommended_artists)
+                           recommended_artists=recommended_artists,
+                           current_time_range=time_range)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
