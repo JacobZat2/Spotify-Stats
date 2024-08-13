@@ -50,11 +50,11 @@ def top_stats():
 
     sp = spotipy.Spotify(auth=token_info['access_token'])
 
-    # Get user's top artists (limit increased to 12)
+    # Get user's top artists 
     artists_results = sp.current_user_top_artists(limit=12, time_range='medium_term')
     top_artists = artists_results['items']
 
-    # Get user's top tracks (limit increased to 12)
+    # Get user's top tracks 
     tracks_results = sp.current_user_top_tracks(limit=12, time_range='medium_term')
     top_tracks = tracks_results['items']
 
@@ -62,13 +62,13 @@ def top_stats():
     genres = []
     for artist in top_artists:
         genres.extend(artist['genres'])
-    genre_counts = Counter(genres).most_common(5)  # Top 5 genres
+    genre_counts = Counter(genres).most_common(5)  
 
     genre_labels = [genre[0] for genre in genre_counts]
     genre_values = [genre[1] for genre in genre_counts]
 
     # Get recommended artists based on top artists
-    seed_artists = [artist['id'] for artist in top_artists[:5]]  # Use up to 5 top artists as seeds
+    seed_artists = [artist['id'] for artist in top_artists[:5]]  
     recommended_artists_results = sp.recommendations(seed_artists=seed_artists, limit=6)
     recommended_artists = recommended_artists_results['tracks']
 
